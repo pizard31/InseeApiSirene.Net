@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyTitle>InseeApiSirene</AssemblyTitle>
+    <Title>InseeApiSirene.Net</Title>
+    <Description>Wrapper de l'API Sirene de l'Insee</Description>
+    <Authors>pizard31</Authors>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>$(AssemblyVersion)</Version>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <NeutralLanguage>fr</NeutralLanguage>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <SignAssembly>False</SignAssembly>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>InseeApiSirene.png</PackageIcon>
+    <PackageTags>sirene, siren, siret, insee, api, wrapper</PackageTags>
+    <PackageReleaseNotes>Wrapper de l'API Sirene de l'Insee</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/pizard31/InseeApiSirene.Net</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/pizard31/InseeApiSirene.Net</RepositoryUrl>    
+    <UserSecretsId>b9c1ee42-e04e-469d-b69a-fd2a239352ff</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\InseeApiSirene.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

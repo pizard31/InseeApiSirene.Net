@@ -1,0 +1,15 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+	<File Path=".gitignore" />
+  </Folder>
+  <Project Path="InseeApiSirene.Test/InseeApiSirene.Test.csproj" Id="d12f3711-9a17-406e-b522-7b381eac99b9" />
+  <Project Path="InseeApiSirene/InseeApiSirene.csproj" />
+</Solution>
