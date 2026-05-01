@@ -96,22 +96,15 @@ Chaque fonction avec appel à l'API est disponible en version Asynchrone (await/
 Fonctions bonus de validation et formatage des numéros SIRET et SIREN.
 ```csharp
 // Numéro SIREN
-Siren.IsValide("326 094 47[1]"); // True
-
-var oSiren = new Siren("326 094 47[1]");
-oSiren.ToString(); // 326094471
-oSiren.AfficherAvecEspaces(); // 326 094 471
-oSiren.IsValide(); // True
+Siren.Nettoyer("326 094 47[1]"); // 326094471
+Siren.Tester("326 094 47[1]"); // True
+Siren.Formater("326 094 47[1]"); // 326 094 471
 
 // Numéro SIRET
-Siret.IsValide("329 297 09[7] 00035"); // True
-
-var oSiret = new Siret("329 297 09[7] 00035");
-oSiret.ToString(); // 32929709700035
-oSiret.Siren; // 329297097
-oSiret.NIC; // 00035
-oSiret.AfficherAvecEspaces(); // 329 297 097 00035
-oSiret.IsValide(); // True
+Siret.Tester("326 094 47[1] 00035"); // True
+Siret.Nettoyer("326 094 47[1] 00035"); // 32609447100035
+Siret.Formater("326 094 47[1] 00035"); // 326 094 471 00035
+Siret.ExtraireSiren("326 094 47[1] 00035", out String nic); // 326094471 (et nic = 00035)
 ```
 
 ### Recherches unitaires

@@ -26,6 +26,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oRequeteMultiCriteres = new RequeteMultiCriteres(query);
                 var oReponseLienSuccession = oSireneApi.LiensSuccession(oRequeteMultiCriteres);
                 Assert.IsEmpty(oReponseLienSuccession.Message, oReponseLienSuccession.Message);
@@ -54,6 +55,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oRequeteMultiCriteres = new RequeteMultiCriteres(query);
                 var oReponseLienSuccession = oSireneApi.LiensSuccessionCsv(oRequeteMultiCriteres);
                 Assert.IsEmpty(oReponseLienSuccession.Message, oReponseLienSuccession.Message);
@@ -82,6 +84,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oRequeteMultiCriteres = new RequeteMultiCriteres(query);
                 var oReponseLienSuccession = await oSireneApi.LiensSuccessionAsync(oRequeteMultiCriteres);
                 Assert.IsEmpty(oReponseLienSuccession.Message, oReponseLienSuccession.Message);
@@ -110,6 +113,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oRequeteMultiCriteres = new RequeteMultiCriteres(query);
                 var oReponseLienSuccession = await oSireneApi.LiensSuccessionCsvAsync(oRequeteMultiCriteres);
                 Assert.IsEmpty(oReponseLienSuccession.Message, oReponseLienSuccession.Message);

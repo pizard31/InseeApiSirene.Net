@@ -36,7 +36,12 @@ namespace InseeApiSirene
         /// Format de date par défaut
         /// </summary>
         internal const String FORMAT_DATE = "yyyy-MM-dd";
-        
+
+        /// <summary>
+        /// Nombre d'appels maximum à l'API en 1 minute (rate-limit)
+        /// </summary>
+        public const Int32 LIMITE_NB_APPEL_PAR_MINUTE = 30;
+
         #endregion
 
         #region Accesseurs
@@ -94,7 +99,7 @@ namespace InseeApiSirene
             catch (Exception ex)
             {
                 Logger.Fatal(ex.Message, ex);
-                throw new SireneApiException(ex.Message.ToString(), ex);
+                throw new SireneApiException(ex.Message, ex);
             }
         }
 
@@ -335,7 +340,7 @@ namespace InseeApiSirene
         /// <param name="champs">Liste des champs demandés, séparés par des virgules, <see cref="RequeteMultiCriteres.IdentificationSimplifieeUniteLegaleEnum"/> et <see cref="RequeteMultiCriteres.IdentificationStandardUniteLegaleEnum"/></param>
         /// <returns>Unité légale trouvée</returns>
         /// <remarks>[GET] /siren/{siren}</remarks>
-        public ReponseUniteLegale UniteLegale(Siren siren, DateTime? date = null, String champs = null)
+        public ReponseUniteLegale UniteLegale(String siren, DateTime? date = null, String champs = null)
         {
             try
             {
@@ -357,7 +362,7 @@ namespace InseeApiSirene
                     sQuery = "?" + sQuery.Substring(1);
                 }
 
-                ReponseUniteLegale oReturn = this.CallApiAsync<ReponseUniteLegale>($"siren/{SireneApi.UrlFormat(siren.ToString())}", sQuery).Result;
+                ReponseUniteLegale oReturn = this.CallApiAsync<ReponseUniteLegale>($"siren/{SireneApi.UrlFormat(Siren.Nettoyer(siren))}", sQuery).Result;
                 if (!oReturn.HasError())
                 {
                     Logger.Info($"✅ {oReturn.UniteLegale.Siren} : {oReturn.UniteLegale.NombrePeriodesUniteLegale} période(s) trouvée(s)");
@@ -377,7 +382,7 @@ namespace InseeApiSirene
         /// <param name="champs">Liste des champs demandés, séparés par des virgules, <see cref="RequeteMultiCriteres.IdentificationSimplifieeUniteLegaleEnum"/> et <see cref="RequeteMultiCriteres.IdentificationStandardUniteLegaleEnum"/></param>
         /// <returns>Unité légale trouvée, Message d'erreur</returns>
         /// <remarks>[GET] /siren/{siren}</remarks>
-        public async Task<ReponseUniteLegale>  UniteLegaleAsync(Siren siren, DateTime? date = null, String champs = null)
+        public async Task<ReponseUniteLegale>  UniteLegaleAsync(String siren, DateTime? date = null, String champs = null)
         {
             try
             {
@@ -399,7 +404,7 @@ namespace InseeApiSirene
                     sQuery = "?" + sQuery.Substring(1);
                 }
 
-                var oReturn = await this.CallApiAsync<ReponseUniteLegale>($"siren/{SireneApi.UrlFormat(siren.ToString())}", sQuery);
+                var oReturn = await this.CallApiAsync<ReponseUniteLegale>($"siren/{SireneApi.UrlFormat(Siren.Nettoyer(siren))}", sQuery);
                 if (!oReturn.HasError())
                 {
                     Logger.Info($"✅ {oReturn.UniteLegale.Siren} : {oReturn.UniteLegale.NombrePeriodesUniteLegale} période(s) trouvée(s)");
@@ -552,7 +557,7 @@ namespace InseeApiSirene
         /// <param name="champs">Liste des champs demandés, séparés par des virgules, <see cref="RequeteMultiCriteres.IdentificationSimplifieeEtablissementEnum"/> et <see cref="RequeteMultiCriteres.IdentificationStandardEtablissementEnum"/></param>
         /// <returns>Établissement trouvé</returns>
         /// <remarks>[GET] /siret/{siret}</remarks>
-        public ReponseEtablissement Etablissement(Siret siret, DateTime? date = null, String champs = null)
+        public ReponseEtablissement Etablissement(String siret, DateTime? date = null, String champs = null)
         {
             try
             {
@@ -574,7 +579,7 @@ namespace InseeApiSirene
                     sQuery = "?" + sQuery.Substring(1);
                 }
 
-                var oReturn = this.CallApiAsync<ReponseEtablissement>($"siret/{SireneApi.UrlFormat(siret.ToString())}", sQuery).Result;
+                var oReturn = this.CallApiAsync<ReponseEtablissement>($"siret/{SireneApi.UrlFormat(siret)}", sQuery).Result;
                 if (!oReturn.HasError())
                 {
                     Logger.Info($"✅ {oReturn.Etablissement.Siret}");
@@ -594,7 +599,7 @@ namespace InseeApiSirene
         /// <param name="champs">Liste des champs demandés, séparés par des virgules, <see cref="RequeteMultiCriteres.IdentificationSimplifieeEtablissementEnum"/> et <see cref="RequeteMultiCriteres.IdentificationStandardEtablissementEnum"/></param>
         /// <returns>Établissement trouvé, Message d'erreur</returns>
         /// <remarks>[GET] /siret/{siret}</remarks>
-        public async Task<ReponseEtablissement> EtablissementAsync(Siret siret, DateTime? date = null, String champs = null)
+        public async Task<ReponseEtablissement> EtablissementAsync(String siret, DateTime? date = null, String champs = null)
         {
             try
             {
@@ -616,7 +621,7 @@ namespace InseeApiSirene
                     sQuery = "?" + sQuery.Substring(1);
                 }
 
-                var oReturn = await this.CallApiAsync<ReponseEtablissement>($"siret/{SireneApi.UrlFormat(siret.ToString())}", sQuery);
+                var oReturn = await this.CallApiAsync<ReponseEtablissement>($"siret/{SireneApi.UrlFormat(siret)}", sQuery);
                 if (!oReturn.HasError())
                 {
                     Logger.Info($"✅ {oReturn.Etablissement.Siret}");

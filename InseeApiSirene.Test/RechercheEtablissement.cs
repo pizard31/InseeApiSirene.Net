@@ -20,7 +20,8 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
-                var oReponseEtablissement = await oSireneApi.EtablissementAsync(new Siret(siret), String.IsNullOrWhiteSpace(date) ? null : Convert.ToDateTime(date));
+                MsTestConfig.RespecterRateLimit();
+                var oReponseEtablissement = await oSireneApi.EtablissementAsync(siret, String.IsNullOrWhiteSpace(date) ? null : Convert.ToDateTime(date));
                 Assert.IsEmpty(oReponseEtablissement.Message, oReponseEtablissement.Message);
                 Assert.IsNotNull(oReponseEtablissement, oReponseEtablissement.Message);
                 Assert.AreEqual(200, oReponseEtablissement.Header.Statut, "Établissement trouvé");
@@ -40,7 +41,8 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
-                var oReponseEtablissement = oSireneApi.Etablissement(new Siret(siret), String.IsNullOrWhiteSpace(date) ? null : Convert.ToDateTime(date));
+                MsTestConfig.RespecterRateLimit();
+                var oReponseEtablissement = oSireneApi.Etablissement(siret, String.IsNullOrWhiteSpace(date) ? null : Convert.ToDateTime(date));
                 Assert.IsEmpty(oReponseEtablissement.Message, oReponseEtablissement.Message);
                 Assert.IsNotNull(oReponseEtablissement, oReponseEtablissement.Message);
                 Assert.AreEqual(200, oReponseEtablissement.Header.Statut, "Établissement trouvé");
@@ -57,6 +59,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oReponseUnitesLegales = await oSireneApi.UnitesLegalesAsync("YAC'HUS");
                 Assert.IsEmpty(oReponseUnitesLegales.Message, oReponseUnitesLegales.Message);
                 Assert.IsNotNull(oReponseUnitesLegales, oReponseUnitesLegales.Message);
@@ -73,6 +76,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oReponseUnitesLegales = oSireneApi.UnitesLegales("YAC'HUS");
                 Assert.IsEmpty(oReponseUnitesLegales.Message, oReponseUnitesLegales.Message);
                 Assert.IsNotNull(oReponseUnitesLegales, oReponseUnitesLegales.Message);
@@ -115,6 +119,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oRequeteMultiCriteres = new RequeteMultiCriteres(query, String.IsNullOrWhiteSpace(date) ? null : Convert.ToDateTime(date), champs, tri, nombre, debut, curseur, facetteChamp);
                 var oReponseEtablissements = await oSireneApi.EtablissementsAsync(oRequeteMultiCriteres);
                 Assert.IsEmpty(oReponseEtablissements.Message, oReponseEtablissements.Message);
@@ -158,6 +163,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oRequeteMultiCriteres = new RequeteMultiCriteres(query, String.IsNullOrWhiteSpace(date) ? null : Convert.ToDateTime(date), champs, tri, nombre, debut, curseur, facetteChamp);
                 var oReponseCSV = await oSireneApi.EtablissementsCsvAsync(oRequeteMultiCriteres);
                 Assert.IsEmpty(oReponseCSV.Message, oReponseCSV.Message);
@@ -201,6 +207,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oRequeteMultiCriteres = new RequeteMultiCriteres(query, String.IsNullOrWhiteSpace(date) ? null : Convert.ToDateTime(date), champs, tri, nombre, debut, curseur, facetteChamp);
                 var oReponseEtablissements = oSireneApi.Etablissements(oRequeteMultiCriteres);
                 Assert.IsEmpty(oReponseEtablissements.Message, oReponseEtablissements.Message);
@@ -244,6 +251,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oRequeteMultiCriteres = new RequeteMultiCriteres(query, String.IsNullOrWhiteSpace(date) ? null : Convert.ToDateTime(date), champs, tri, nombre, debut, curseur, facetteChamp);
                 var oReponseCSV = oSireneApi.EtablissementsCsv(oRequeteMultiCriteres);
                 Assert.IsEmpty(oReponseCSV.Message, oReponseCSV.Message);

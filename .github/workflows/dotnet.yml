@@ -24,6 +24,7 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-# Les tests vont échouer en une seule passe à cause de la limitation de l'API à 30 appels/minutes (err 429)
-#    - name: Test
-#      run: dotnet test --no-build --verbosity normal
+    - name: Test
+      env:
+        InseeApiKey: ${{ secrets.INSEE_API_KEY }}
+      run: dotnet test --no-build --verbosity normal

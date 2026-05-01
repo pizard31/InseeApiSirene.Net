@@ -15,6 +15,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oInformations = await oSireneApi.InformationsAsync();
                 Assert.IsEmpty(oInformations.Message, oInformations.Message);
                 Assert.IsNotNull(oInformations, oInformations.Message);
@@ -32,6 +33,7 @@
         {
             using (var oSireneApi = new SireneApi(MsTestConfig.GetApiKey()))
             {
+                MsTestConfig.RespecterRateLimit();
                 var oInformations = oSireneApi.Informations();
                 Assert.IsEmpty(oInformations.Message, oInformations.Message);
                 Assert.IsNotNull(oInformations, oInformations.Message);

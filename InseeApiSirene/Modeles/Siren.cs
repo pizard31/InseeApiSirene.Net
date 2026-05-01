@@ -7,90 +7,57 @@ namespace InseeApiSirene
     /// Système d'Identification du Répertoire des ENtreprises
     /// </summary>
     /// <remarks>9 chiffres, composé de l'identifiant unique de l'entreprise (8 premiers chiffres) + clé de contrôle (9ème chiffre, calculée selon l'algorithme de Luhn)</remarks>
-    public class Siren
+    public abstract class Siren
     {
         /// <summary>
-        /// Numéro SIREN
+        /// Nettoyer un numéro SIREN en supprimant les espaces, tirets, etc. et ne garder que les chiffres
         /// </summary>
-        private String NumeroSiren { get; set; }
-
-        /// <summary>
-        /// Numéro SIREN
-        /// </summary>
-        /// <param name="siren">Numéro SIREN</param>
-        public Siren(String siren)
+        /// <param name="siren">Numéro SIREN à nettoyer</param>
+        /// <returns>Numéro SIREN nettoyé</returns>
+        public static String Nettoyer(String siren)
         {
-            if (String.IsNullOrWhiteSpace(siren))
-            {
-                throw new ArgumentException("Le SIREN ne peut pas être vide");
-            }
-            // Nettoyage : suppression des espaces, tirets, etc.
-            if (siren.Length != 9)
-            {
-                siren = Regex.Replace(siren, "[^0-9]", "");
-                if (siren.Length != 9)
-                {
-                    throw new ArgumentException("Un SIREN est composé de 9 chiffres");
-                }
-            }
-            if (!Siren.IsValide(siren))
-            {
-                throw new ArgumentException($"Le SIREN '{siren}' est invalide");
-            }
-            this.NumeroSiren = siren;
+            if (String.IsNullOrEmpty(siren)) return String.Empty;
+            return Regex.Replace(siren, "[^0-9]", "");
         }
 
         /// <summary>
-        /// Affichage du SIREN
+        /// Formatage d'un numéro SIREN avec espaces pour une meilleure lisibilité (ex: "326 094 471")
         /// </summary>
-        /// <returns>Le numéro SIREN sous forme de chaîne de caractères</returns>
-        public override String ToString()
-        {
-            return this.NumeroSiren;
-        }
-
-        /// <summary>
-        /// Validation d'un numéro SIREN
-        /// </summary>
-        /// <remarks>Algorithme de Luhn</remarks>
-        /// <returns>Vrai si le SIREN est valide, Faux sinon</returns>
-        public Boolean IsValide()
-        {
-            return Siren.IsValide(this.ToString());
-        }
-
-        /// <summary>
-        /// Affichage du SIREN avec espaces pour une meilleure lisibilité (ex: "326 094 471")
-        /// </summary>
-        /// <returns>Le numéro SIREN sous forme de chaîne de caractères</returns>
-        public string AfficherAvecEspaces()
-        {
-            return Regex.Replace(this.NumeroSiren, ".{3}", "$0 ").Trim();
-        }
-
-        /// <summary>
-        /// Validation d'un numéro SIREN
-        /// </summary>
-        /// <remarks>Algorithme de Luhn</remarks>
-        /// <param name="siren">Numéro SIREN à valider</param>
-        /// <returns>Vrai si le SIREN est valide, Faux sinon</returns>
-        public static Boolean IsValide(String siren)
+        /// <param name="siren">Numéro SIREN à formater</param>
+        /// <returns>Le numéro SIREN formaté sous forme de chaîne de caractères</returns>
+        public static String Formater(String siren)
         {
             try
             {
-                if (String.IsNullOrWhiteSpace(siren))
-                {
-                    return false;
-                }
+                siren = Siren.Nettoyer(siren);
+                if (!Siren.Tester(siren, false)) return String.Empty;
+                return Regex.Replace(siren, ".{3}", "$0 ").Trim();
+            }
+            catch (Exception ex)
+            {
+                Logger.Fatal(ex.Message, ex);
+                throw new ApplicationException(ex.Message.ToString(), ex);
+            }
+        }
 
-                // Nettoyage (ne garder que les chiffres)
-                siren = Regex.Replace(siren, "[^0-9]", "");
-                if (siren.Length != 9)
-                {
-                    return false;
-                }
+        /// <summary>
+        /// Tester la validité d'un numéro SIREN
+        /// </summary>
+        /// <param name="siren">Numéro SIREN à valider, penser à le <see cref="Siren.Nettoyer"/> avant</param>
+        /// <param name="avecVerificationCle">Indique si la clé de contrôle doit être vérifiée (Algorithme de Luhn)</param>
+        /// <returns>Vrai si le SIREN est valide, Faux sinon</returns>
+        public static Boolean Tester(String siren, Boolean avecVerificationCle = true)
+        {
+            try
+            {
+                // Non vide
+                if (String.IsNullOrWhiteSpace(siren)) return false;
+
+                // Composé de 9 chiffres
+                if (!Regex.IsMatch(siren, @"^\d{9}$")) return false;
 
                 // Algorithme de Luhn pour la clé de contrôle
+                if (!avecVerificationCle) return true;
                 Int32 sum = 0;
                 Boolean alternate = false;
                 // 1.Multiplier chaque chiffre par 2, de droite à gauche, en commençant par le 2ème chiffre

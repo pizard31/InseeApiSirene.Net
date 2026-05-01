@@ -8,94 +8,90 @@ namespace InseeApiSirene
     /// Identifie un établissement physique (siège social, succursale, etc.)
     /// </summary>
     /// <remarks>14 chiffres, composé du SIREN (9 chiffres) + NIC (5 chiffres)</remarks>
-    public class Siret
+    public abstract class Siret
     {
         /// <summary>
-        /// Numéro SIREN
+        /// Décomposer un SIRET en SIREN (+ NIC)
         /// </summary>
-        public Siren Siren { get; set; }
-        /// <summary>
-        /// NIC
-        /// </summary>
-        public String NIC { get; private set; }
-
-        /// <summary>
-        /// Numéro SIRET
-        /// </summary>
-        /// <param name="siret">Numéro SIRET</param>
-        public Siret(String siret)
-        {
-            if (String.IsNullOrWhiteSpace(siret))
-            {
-                throw new ArgumentException("Le SIRET ne peut pas être vide");
-            }
-            // Nettoyage : suppression des espaces, tirets, etc.
-            if (siret.Length != 9)
-            {
-                siret = Regex.Replace(siret, "[^0-9]", "");
-                if (siret.Length != 14)
-                {
-                    throw new ArgumentException("Un SIRET est composé de 14 chiffres");
-                }
-            }
-
-            // Décomposition SIRET+NIC
-            this.Siren = new Siren(siret.Substring(0, 9));
-            this.NIC = siret.Substring(9, 5);
-        }
-
-        /// <summary>
-        /// Affichage du SIRET
-        /// </summary>
-        /// <returns>Le numéro SIRET sous forme de chaîne de caractères</returns>
-        public override string ToString()
-        {
-            return this.Siren.ToString() + this.NIC;
-        }
-
-        /// <summary>
-        /// Validation d'un numéro SIRET
-        /// </summary>
-        /// <remarks>Algorithme de Luhn</remarks>
-        /// <returns>Vrai si le SIRET est valide, Faux sinon</returns>
-        public Boolean IsValide()
-        {
-            return Siret.IsValide(this.ToString());
-        }
-
-        /// <summary>
-        /// Affichage du SIRET avec espaces pour une meilleure lisibilité (ex: "123 456 789 00000")
-        /// </summary>
-        /// <returns>Le numéro SIRET sous forme de chaîne de caractères</returns>
-        public string AfficherAvecEspaces()
-        {
-            return $"{this.Siren.AfficherAvecEspaces()} {this.NIC}";
-        }
-
-        /// <summary>
-        /// Validation d'un numéro SIRET
-        /// </summary>
-        /// <remarks>Algorithme de Luhn</remarks>
-        /// <param name="siret">Numéro SIRETà valider</param>
-        /// <returns>Vrai si le SIRET est valide, Faux sinon</returns>
-        public static Boolean IsValide(String siret)
+        /// <param name="siret">Numéro SIRET à décomposer</param>
+        /// <param name="nic">NIC ou chaine vide</param>
+        /// <returns>Numéro SIREN ou chaine vide</returns>
+        public static String ExtraireSiren(String siret, out String nic)
         {
             try
             {
-                if (String.IsNullOrWhiteSpace(siret))
+                // Décomposition SIRET+NIC
+                siret = Siret.Nettoyer(siret);
+                if (Siret.Tester(siret, false))
                 {
-                    return false;
+                    nic = siret.Substring(9, 5);
+                    return siret.Substring(0, 9);
                 }
-
-                // Nettoyage (ne garder que les chiffres)
-                siret = Regex.Replace(siret, "[^0-9]", "");
-                if (siret.Length != 14)
+                else
                 {
-                    return false;
+                    nic = String.Empty;
+                    return String.Empty;
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Fatal(ex.Message, ex);
+                throw new ApplicationException(ex.Message.ToString(), ex);
+            }
+        }
 
-                // Validation du SIREN (9 premiers chiffres)
-                return Siren.IsValide(siret.Substring(0, 9));
+        /// <summary>
+        /// Nettoyer un numéro SIRET en supprimant les espaces, tirets, etc. et ne garder que les chiffres
+        /// </summary>
+        /// <param name="siret">Numéro SIRET à nettoyer</param>
+        /// <returns>Numéro SIRET nettoyé</returns>
+        public static String Nettoyer(String siret)
+        {
+            if (String.IsNullOrEmpty(siret)) return String.Empty;
+            return Regex.Replace(siret, "[^0-9]", "");
+        }
+
+        /// <summary>
+        /// Formatage d'un numéro SIRET avec espaces pour une meilleure lisibilité (ex: "123 456 789 00000")
+        /// </summary>
+        /// <param name="siret">Numéro SIRET à formater</param>
+        /// <returns>Le numéro SIRET formaté sous forme de chaîne de caractères</returns>
+        public static String Formater(String siret)
+        {
+            try
+            {
+                siret = Siret.Nettoyer(siret);
+                if (!Siret.Tester(siret, false)) return String.Empty;
+                String siren = ExtraireSiren(siret, out String nic);
+                if (!Siren.Tester(siren, false)) return String.Empty;
+                return $"{Siren.Formater(siren)} {nic}";
+            }
+            catch (Exception ex)
+            {
+                Logger.Fatal(ex.Message, ex);
+                throw new ApplicationException(ex.Message.ToString(), ex);
+            }
+        }
+
+        /// <summary>
+        /// Tester la validité d'un numéro SIRET
+        /// </summary>
+        /// <param name="siret">Numéro SIRET à valider, penser à le <see cref="Siret.Nettoyer"/> avant</param>
+        /// <param name="avecVerificationCle">Indique si la clé de contrôle du SIREN doit être vérifiée (Algorithme de Luhn)</param>
+        /// <returns>Vrai si le SIRET est valide, Faux sinon</returns>
+        public static Boolean Tester(String siret, Boolean avecVerificationCle = true)
+        {
+            try
+            {
+                // Non vide
+                if (String.IsNullOrWhiteSpace(siret)) return false;
+
+                // Composé de 14 chiffres
+                if (!Regex.IsMatch(siret, @"^\d{14}$")) return false;
+
+                // Algorithme de Luhn pour la clé de contrôle du SIREN
+                if (!avecVerificationCle) return true;
+                return Siren.Tester(Siret.ExtraireSiren(siret, out String nic), true);
             }
             catch (Exception ex)
             {
