@@ -13,9 +13,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-      env:
-        DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: false
-        DOTNET_SYSTEM_GLOBALIZATION_LOCALE: fr-FR
+
+    env:
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: false
+      DOTNET_SYSTEM_GLOBALIZATION_LOCALE: fr-FR
 
     steps:
     - uses: actions/checkout@v4
