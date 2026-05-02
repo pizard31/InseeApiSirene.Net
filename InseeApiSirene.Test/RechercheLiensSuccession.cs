@@ -1,4 +1,6 @@
-﻿namespace InseeApiSirene.Test
+﻿using System.Globalization;
+
+namespace InseeApiSirene.Test
 {
     /// <summary>
     /// Recherche sur les liens de succession
@@ -6,6 +8,18 @@
     [TestClass]
     public sealed class RechercheLiensSuccession
     {
+        /// <summary>
+        /// Initialisation de la culture pour les tests (fr-FR)
+        /// </summary>
+        /// <param name="context">Contexte</param>
+        [ClassInitialize]
+        public static void InitialiserCulture(TestContext context)
+        {
+            // Force la culture française pour tout le thread
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("fr-FR");
+        }
+
         /// <summary>
         /// Recherche sur les liens de succession
         /// </summary>

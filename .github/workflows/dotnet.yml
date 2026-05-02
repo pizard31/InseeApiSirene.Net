@@ -1,5 +1,5 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+# Compilation et test de projet .NET
+# Plus d'info : https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
 name: .NET
 
@@ -14,21 +14,17 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    env:
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: false
-      DOTNET_SYSTEM_GLOBALIZATION_LOCALE: fr-FR
-
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET
+    - name: Configuration .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Restore dependencies
+    - name: Restauration des dépendances
       run: dotnet restore
-    - name: Build
+    - name: Compilation
       run: dotnet build --no-restore
-    - name: Test
+    - name: Exécution des tests
       env:
         InseeApiKey: ${{ secrets.INSEE_API_KEY }}
       run: dotnet test --no-build --verbosity normal

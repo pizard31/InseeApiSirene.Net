@@ -1,4 +1,6 @@
-﻿namespace InseeApiSirene.Test
+﻿using System.Globalization;
+
+namespace InseeApiSirene.Test
 {
     /// <summary>
     /// Recherche établissements (SIRET) sur l'API Sirene
@@ -7,6 +9,18 @@
     public sealed class RechercheEtablissement
     {
         private const String SIRET_TEST = "32929709700035";
+
+        /// <summary>
+        /// Initialisation de la culture pour les tests (fr-FR)
+        /// </summary>
+        /// <param name="context">Contexte</param>
+        [ClassInitialize]
+        public static void InitialiserCulture(TestContext context)
+        {
+            // Force la culture française pour tout le thread
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("fr-FR");
+        }
 
         /// <summary>
         /// Recherche unitaire par SIRET (ASYNC)

@@ -8,6 +8,7 @@
   </Configurations>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
+    <File Path=".github/workflows/dotnet.yml" />
 	<File Path=".gitignore" />
   </Folder>
   <Project Path="InseeApiSirene.Test/InseeApiSirene.Test.csproj" Id="d12f3711-9a17-406e-b522-7b381eac99b9" />
