@@ -180,7 +180,7 @@ namespace InseeApiSirene
                         }
 
                         // Appel de l'API (asynchrone)
-                        using (var oHttpResponse = await oHttpClient.SendAsync(oHttpRequest, HttpCompletionOption.ResponseContentRead))
+                        using (var oHttpResponse = await oHttpClient.SendAsync(oHttpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false))
                         {
                             //TODO: Gestion avancée des "429-Too Many Requests : vous avez dépassé votre quota d'interrogations"
                             if (Logger.IsDebugEnabled())
@@ -191,9 +191,19 @@ namespace InseeApiSirene
                                     // X-Rate-Limit-Limit
                                     // X-Rate-Limit-Reset
                                     // X-Rate-Limit-Remaining
-                                    if (oHttpResponseHeader.Key.StartsWith("X-Rate-Limit", StringComparison.InvariantCultureIgnoreCase))
+                                    if (oHttpResponseHeader.Key == "X-Rate-Limit-Remaining")
                                     {
-                                        Logger.Debug($"[Header] {oHttpResponseHeader.Key} = {string.Join(", ", oHttpResponseHeader.Value)}");
+                                        if (Int32.TryParse(String.Join("", oHttpResponseHeader.Value), out Int32 iNbRestant))
+                                        {
+                                            Logger.Debug($"[Header/X-Rate-Limit-Remaining] = {iNbRestant}");
+                                        }
+                                    }
+                                    if (oHttpResponseHeader.Key == "X-Rate-Limit-Reset")
+                                    {
+                                        if (Int64.TryParse(String.Join("", oHttpResponseHeader.Value), out Int64 tsReset))
+                                        {
+                                            Logger.Debug($"[Header/X-Rate-Limit-Reset] = {DateTimeOffset.FromUnixTimeMilliseconds(tsReset).LocalDateTime}");
+                                        }
                                     }
                                 }
                             }
@@ -202,11 +212,11 @@ namespace InseeApiSirene
                             String strResponse = String.Empty;
                             if (this.CompressionGzip)
                             {
-                                strResponse = SireneApi.DecompresserGZip(oHttpResponse.Content.ReadAsByteArrayAsync().Result);
+                                strResponse = SireneApi.DecompresserGZip(await oHttpResponse.Content.ReadAsByteArrayAsync().ConfigureAwait(false));
                             }
                             else
                             {
-                                strResponse = oHttpResponse.Content.ReadAsStringAsync().Result?.Trim(); // En UTF-8 par défaut
+                                strResponse = (await oHttpResponse.Content.ReadAsStringAsync().ConfigureAwait(false)).Trim(); // En UTF-8 par défaut
                             }
 
                             if (isCsv)
@@ -362,8 +372,8 @@ namespace InseeApiSirene
                     sQuery = "?" + sQuery.Substring(1);
                 }
 
-                ReponseUniteLegale oReturn = this.CallApiAsync<ReponseUniteLegale>($"siren/{SireneApi.UrlFormat(Siren.Nettoyer(siren))}", sQuery).Result;
-                if (!oReturn.HasError())
+                ReponseUniteLegale oReturn = Task.Run(async () => await this.CallApiAsync<ReponseUniteLegale>($"siren/{SireneApi.UrlFormat(Siren.Nettoyer(siren))}", sQuery).ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.UniteLegale.Siren} : {oReturn.UniteLegale.NombrePeriodesUniteLegale} période(s) trouvée(s)");
                 }
@@ -404,8 +414,8 @@ namespace InseeApiSirene
                     sQuery = "?" + sQuery.Substring(1);
                 }
 
-                var oReturn = await this.CallApiAsync<ReponseUniteLegale>($"siren/{SireneApi.UrlFormat(Siren.Nettoyer(siren))}", sQuery);
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseUniteLegale>($"siren/{SireneApi.UrlFormat(Siren.Nettoyer(siren))}", sQuery).ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.UniteLegale.Siren} : {oReturn.UniteLegale.NombrePeriodesUniteLegale} période(s) trouvée(s)");
                 }
@@ -428,7 +438,7 @@ namespace InseeApiSirene
             try
             {
                 var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:" + raisonSociale, null, "siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
-                return UnitesLegales(oRequeteMultiCriteres);
+                return this.UnitesLegales(oRequeteMultiCriteres);
             }
             catch (Exception ex)
             {
@@ -446,7 +456,7 @@ namespace InseeApiSirene
             try
             {
                 var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:" + raisonSociale, null, "siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
-                return await UnitesLegalesAsync(oRequeteMultiCriteres);
+                return await this.UnitesLegalesAsync(oRequeteMultiCriteres).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -464,8 +474,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = this.CallApiAsync<ReponseUnitesLegales>("siren", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").Result;
-                if (!oReturn.HasError())
+                var oReturn = Task.Run(async () => await this.CallApiAsync<ReponseUnitesLegales>("siren", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.UnitesLegales.Count} unité(s) légale(s) trouvée(s)");
                 }
@@ -486,8 +496,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = await this.CallApiAsync<ReponseUnitesLegales>($"siren", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST");
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseUnitesLegales>($"siren", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.UnitesLegales.Count} unité(s) légale(s) trouvée(s)");
                 }
@@ -508,8 +518,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = this.CallApiAsync<ReponseCSV>("siren", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").Result;
-                if (!oReturn.HasError())
+                var oReturn = Task.Run(async () => await this.CallApiAsync<ReponseCSV>("siren", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ Fichier CSV");
                     Logger.Debug(oReturn.CSV);
@@ -531,8 +541,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = await this.CallApiAsync<ReponseCSV>($"siren", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST");
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseCSV>($"siren", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ Fichier CSV");
                     Logger.Debug(oReturn.CSV);
@@ -579,8 +589,8 @@ namespace InseeApiSirene
                     sQuery = "?" + sQuery.Substring(1);
                 }
 
-                var oReturn = this.CallApiAsync<ReponseEtablissement>($"siret/{SireneApi.UrlFormat(siret)}", sQuery).Result;
-                if (!oReturn.HasError())
+                var oReturn = Task.Run(async () => await this.CallApiAsync<ReponseEtablissement>($"siret/{SireneApi.UrlFormat(siret)}", sQuery).ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.Etablissement.Siret}");
                 }
@@ -621,8 +631,8 @@ namespace InseeApiSirene
                     sQuery = "?" + sQuery.Substring(1);
                 }
 
-                var oReturn = await this.CallApiAsync<ReponseEtablissement>($"siret/{SireneApi.UrlFormat(siret)}", sQuery);
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseEtablissement>($"siret/{SireneApi.UrlFormat(siret)}", sQuery).ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.Etablissement.Siret}");
                 }
@@ -645,7 +655,7 @@ namespace InseeApiSirene
             try
             {
                 var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:" + raisonSociale, null, "siret,siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelleEtablissement,enseigne1Etablissement,enseigne2Etablissement,enseigne3Etablissement,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
-                return Etablissements(oRequeteMultiCriteres);
+                return this.Etablissements(oRequeteMultiCriteres);
             }
             catch (Exception ex)
             {
@@ -663,7 +673,7 @@ namespace InseeApiSirene
             try
             {
                 var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:" + raisonSociale, null, "siret,siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelleEtablissement,enseigne1Etablissement,enseigne2Etablissement,enseigne3Etablissement,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
-                return await EtablissementsAsync(oRequeteMultiCriteres);
+                return await this.EtablissementsAsync(oRequeteMultiCriteres).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -681,8 +691,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = this.CallApiAsync<ReponseEtablissements>("siret", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").Result;
-                if (!oReturn.HasError())
+                var oReturn = Task.Run(async () => await this.CallApiAsync<ReponseEtablissements>("siret", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.Etablissements.Count} établissement(s) trouvé(s)");
                 }
@@ -703,8 +713,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = await this.CallApiAsync<ReponseEtablissements>($"siret", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST");
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseEtablissements>($"siret", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.Etablissements.Count} établissement(s) trouvé(s)");
                 }
@@ -725,8 +735,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = this.CallApiAsync<ReponseCSV>("siret", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").Result;
-                if (!oReturn.HasError())
+                var oReturn = Task.Run(async () => await this.CallApiAsync<ReponseCSV>("siret", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ Fichier CSV");
                     Logger.Debug(oReturn.CSV);
@@ -748,8 +758,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = await this.CallApiAsync<ReponseCSV>($"siret", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST");
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseCSV>($"siret", requeteMultiCriteres.ToContent(this.MasquerValeurNulles), "POST").ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ Fichier CSV");
                     Logger.Debug(oReturn.CSV);
@@ -772,8 +782,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = this.CallApiAsync<ReponseLienSuccession>("siret/liensSuccession", requeteMultiCriteres.ToUrlQuery(this.MasquerValeurNulles)).Result;
-                if (!oReturn.HasError())
+                var oReturn = Task.Run(async () => await this.CallApiAsync<ReponseLienSuccession>("siret/liensSuccession", requeteMultiCriteres.ToUrlQuery(this.MasquerValeurNulles)).ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ {oReturn.LiensSuccession.Count} lien(s)");
                 }
@@ -794,8 +804,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = await this.CallApiAsync<ReponseLienSuccession>("siret/liensSuccession", requeteMultiCriteres.ToUrlQuery(this.MasquerValeurNulles));
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseLienSuccession>("siret/liensSuccession", requeteMultiCriteres.ToUrlQuery(this.MasquerValeurNulles)).ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 { 
                     Logger.Info($"✅ {oReturn.LiensSuccession.Count} lien(s)");
                 }
@@ -816,8 +826,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = this.CallApiAsync<ReponseCSV>("siret/liensSuccession", requeteMultiCriteres.ToUrlQuery(this.MasquerValeurNulles)).Result;
-                if (!oReturn.HasError())
+                var oReturn = Task.Run(async () => await this.CallApiAsync<ReponseCSV>("siret/liensSuccession", requeteMultiCriteres.ToUrlQuery(this.MasquerValeurNulles)).ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ Fichier CSV");
                 }
@@ -838,8 +848,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = await this.CallApiAsync<ReponseCSV>("siret/liensSuccession", requeteMultiCriteres.ToUrlQuery(this.MasquerValeurNulles));
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseCSV>("siret/liensSuccession", requeteMultiCriteres.ToUrlQuery(this.MasquerValeurNulles)).ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ Fichier CSV");
                 }
@@ -864,8 +874,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = this.CallApiAsync<ReponseInformations>("informations").Result;
-                if (!oReturn.HasError())
+                var oReturn = Task.Run(async () => await this.CallApiAsync<ReponseInformations>("informations").ConfigureAwait(false)).GetAwaiter().GetResult();
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ Service {oReturn.EtatService}");
                 }
@@ -885,8 +895,8 @@ namespace InseeApiSirene
         {
             try
             {
-                var oReturn = await this.CallApiAsync<ReponseInformations>("informations");
-                if (!oReturn.HasError())
+                var oReturn = await this.CallApiAsync<ReponseInformations>("informations").ConfigureAwait(false);
+                if (!oReturn.AvecErreur())
                 {
                     Logger.Info($"✅ Service {oReturn.EtatService}");
                 }

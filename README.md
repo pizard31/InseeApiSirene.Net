@@ -157,6 +157,8 @@ Il est possible d'obtenir les données structurées (Objets) ou brutes (CSV).
 
 ## Logs
 
+Par défaut les logs sortent sur "System.Diagnostics.Debug".
+
 Possibilité d'ajouter des traces des opérations via un Logger personnalisé
 
 ```csharp
@@ -164,7 +166,7 @@ Possibilité d'ajouter des traces des opérations via un Logger personnalisé
 InseeApiSirene.Logger = new ConsoleLogger();
 
 /// <summary>
-/// Classe de log pour une sortie sur la console
+/// Classe de log pour une sortie sur la Console
 /// </summary>
 public class ConsoleLogger : ILogger
 {

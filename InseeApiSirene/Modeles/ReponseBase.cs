@@ -69,12 +69,20 @@ namespace InseeApiSirene
         }
 
         /// <summary>
+        /// Détermine si la requête est un succès
+        /// </summary>
+        /// <returns>Vrai si aucune erreur trouvée, faux sinon</returns>
+        public Boolean EstSucces()
+        {
+            return !this.AvecErreur();
+        }
+        /// <summary>
         /// Détermine si la requête à des erreurs
         /// </summary>
-        /// <returns></returns>
-        public Boolean HasError()
+        /// <returns>Vrai si une erreur est trouvée, faux sinon</returns>
+        public Boolean AvecErreur()
         {
-            Boolean result = false;
+            Boolean result;
             if (this.Header != null)
             {
                 result = this.Header.Statut >= 300; // Pas 2xx
@@ -85,14 +93,22 @@ namespace InseeApiSirene
             }
             else
             {
-                
                 result = this.Exception != null;
             }
             if (result)
             {
-                Logger.Warning($"⚠ {this.ToString()}");
+                Logger.Warning(this.AfficherErreur());
             }
             return result;
+        }
+
+        /// <summary>
+        /// Affichage du message d'erreur
+        /// </summary>
+        /// <returns>Erreur rencontrée</returns>
+        public String AfficherErreur()
+        {
+            return this.ToString();
         }
 
         /// <summary>
