@@ -1,7 +1,7 @@
 # Compilation et test de projet .NET
 # Plus d'info : https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: .NET
+name: Compilation et Tests
 
 on:
   push:
@@ -15,15 +15,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Import du dépôt
+      uses: actions/checkout@v4
+
     - name: Configuration .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+
     - name: Restauration des dépendances
       run: dotnet restore
+
     - name: Compilation
       run: dotnet build --no-restore
+
     - name: Exécution des tests
       env:
         InseeApiKey: ${{ secrets.INSEE_API_KEY }}

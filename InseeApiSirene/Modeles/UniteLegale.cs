@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace InseeApiSirene
@@ -33,6 +34,48 @@ namespace InseeApiSirene
         /// </summary>
         [JsonPropertyName("periodesUniteLegale")]
         public List<PeriodeUniteLegale> PeriodesUniteLegale { get; set; }
+
+        /// <summary>
+        /// Période actuelle de l'Unité Légale
+        /// </summary>
+        /// <remarks>Sans date de fin</remarks>
+        /// <returns>La période actuelle ou null</returns>
+        public PeriodeUniteLegale PeriodeActuelle()
+        {
+            try
+            {
+
+                if (this.NombrePeriodesUniteLegale > 0)
+                {
+                    var oPeriodeActuelle = this.PeriodesUniteLegale.FindAll(p => !p.DateFin.HasValue).FirstOrDefault();
+                    return oPeriodeActuelle;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new SireneApiException(ex.Message, ex);
+            }
+        }
+
+        /// <summary>
+        /// Récupération du Siret actuel de l'unité légale, c'est à dire du Siret de son siège social
+        /// </summary>
+        public String SiretActuel()
+        {
+            try
+            {
+                var oPeriodeActuelle = this.PeriodeActuelle();
+                return oPeriodeActuelle?.Siret(this.Siren);
+            }
+            catch (Exception ex)
+            {
+                throw new SireneApiException(ex.Message, ex);
+            }
+        }
     }
 
     /// <summary>

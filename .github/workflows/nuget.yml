@@ -1,3 +1,6 @@
+# Création Packages et publication sur Nuget.org
+# Plus d'info : https://learn.microsoft.com/fr-fr/nuget/nuget-org/trusted-publishing
+
 name: Publication NuGet
 
 on:
@@ -7,20 +10,22 @@ on:
 
 jobs:
   build-and-publish:
-    runs-on: windows-latest
+
+    runs-on: ubuntu-latest
+
     permissions:
       id-token: write
 
     steps:
-      - name: Checkout dépôt
+      - name: Import du dépôt
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Configuration .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: 8.0.x
 
       - name: Restauration des dépendances
         run: dotnet restore
@@ -36,7 +41,7 @@ jobs:
         id: login
         with:
           user: ${{ secrets.NUGET_USER }}
-    
+
       - name: Publication du package sur NuGet
         run: dotnet nuget push nupkgs/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
 

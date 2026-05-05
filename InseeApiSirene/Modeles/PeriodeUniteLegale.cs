@@ -34,7 +34,7 @@ namespace InseeApiSirene
         public Boolean ChangementEtatAdministratifUniteLegale { get; set; }
 
         /// <summary>
-        /// Nom de naissance pour les personnes physiques pour la période (null pour les personnes morales)
+        /// Nom de naissance pour les personnes physiques pour la période, null pour les personnes morales
         /// </summary>
         [JsonPropertyName("nomUniteLegale")]
         public String NomUniteLegale { get; set; }
@@ -176,5 +176,40 @@ namespace InseeApiSirene
         [JsonPropertyName("changementDenominationUsuelleUniteLegale")]
         public Boolean ChangementDenominationUsuelleUniteLegale { get; set; }
 
+        /// <summary>
+        /// Numéro Siret de l'établissement
+        /// </summary>
+        /// <remarks>Le Siret du siège est obtenu en concaténant le numéro Siren et le Nic</remarks>
+        public String Siret(String siren)
+        {
+            return $"{siren}{this.NicSiegeUniteLegale}";
+        }
+
+        /// <summary>
+        /// Raison sociale (personnes morales et physiques)
+        /// </summary>
+        /// <returns></returns>
+        public String RaisonSociale()
+        {
+            if (!String.IsNullOrWhiteSpace(this.DenominationUniteLegale))
+            {
+                // Personne Morale
+                return this.DenominationUniteLegale;
+            }
+            else
+            {
+                // Personne Physique
+                if (!String.IsNullOrWhiteSpace(this.NomUsageUniteLegale))
+                {
+                    // avec nom d'usage
+                    return this.NomUsageUniteLegale;
+                }
+                else
+                {
+                    // sans nom d'usage
+                    return this.NomUniteLegale;
+                }
+            }
+        }
     }
 }

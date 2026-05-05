@@ -112,7 +112,7 @@ namespace InseeApiSirene
         /// </summary>
         /// <typeparam name="T">Type de réponse attendue</typeparam>
         /// <param name="route">Route de l'API appelée</param>
-        /// <param name="query">Pramètres de requête (null pour ignorer)</param>
+        /// <param name="query">Paramètres de requête (null pour ignorer)</param>
         /// <param name="method">Méthode d'appel (GET par défaut)</param>
         /// <returns>Réponse en cas de succès, Exception en cas d'erreur</returns>
         private async Task<T> CallApiAsync<T>(String route, String query = null, String method = "GET")
@@ -437,7 +437,7 @@ namespace InseeApiSirene
         {
             try
             {
-                var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:" + raisonSociale, null, "siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
+                var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:\"" + raisonSociale + "\"", null, "siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
                 return this.UnitesLegales(oRequeteMultiCriteres);
             }
             catch (Exception ex)
@@ -455,7 +455,7 @@ namespace InseeApiSirene
         {
             try
             {
-                var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:" + raisonSociale, null, "siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
+                var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:\"" + raisonSociale + "\"");
                 return await this.UnitesLegalesAsync(oRequeteMultiCriteres).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -654,7 +654,7 @@ namespace InseeApiSirene
         {
             try
             {
-                var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:" + raisonSociale, null, "siret,siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelleEtablissement,enseigne1Etablissement,enseigne2Etablissement,enseigne3Etablissement,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
+                var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:\"" + raisonSociale + "\"", null, "siret,siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelleEtablissement,enseigne1Etablissement,enseigne2Etablissement,enseigne3Etablissement,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
                 return this.Etablissements(oRequeteMultiCriteres);
             }
             catch (Exception ex)
@@ -672,7 +672,7 @@ namespace InseeApiSirene
         {
             try
             {
-                var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:" + raisonSociale, null, "siret,siren,denominationUniteLegale,sigleUniteLegale,denominationUsuelleEtablissement,enseigne1Etablissement,enseigne2Etablissement,enseigne3Etablissement,denominationUsuelle1UniteLegale,denominationUsuelle2UniteLegale,denominationUsuelle3UniteLegale");
+                var oRequeteMultiCriteres = new RequeteMultiCriteres("raisonSociale:\"" + raisonSociale + "\"");
                 return await this.EtablissementsAsync(oRequeteMultiCriteres).ConfigureAwait(false);
             }
             catch (Exception ex)

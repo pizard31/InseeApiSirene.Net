@@ -15,13 +15,13 @@ namespace InseeApiSirene
         public EtatAdministratifUniteLegaleEnum? EtatAdministratifUniteLegale { get; set; }
 
         /// <summary>
-        /// Nom de naissance pour les personnes physiques pour la période (null pour les personnes morales)
+        /// Nom de naissance pour les personnes physiques pour la période, null pour les personnes morales
         /// </summary>
         [JsonPropertyName("nomUniteLegale")]
         public String NomUniteLegale { get; set; }
 
         /// <summary>
-        /// Raison sociale (personnes morales) (null pour les personnes morales)
+        /// Raison sociale (personnes morales), null pour les personnes morales
         /// </summary>
         [JsonPropertyName("denominationUniteLegale")]
         public String DenominationUniteLegale { get; set; }

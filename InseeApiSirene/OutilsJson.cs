@@ -147,7 +147,7 @@ namespace InseeApiSirene
             /// <returns>L'énumération désérialisée</returns>
             public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                // Si la valeur est null ou la chaîne "null", retourne la valeur par défaut (null pour un Nullable<T>)
+                // Si la valeur est null ou la chaîne "null", retourne la valeur par défaut, null pour un Nullable<T>
                 if (reader.TokenType == JsonTokenType.Null || reader.GetString() == "null")
                 {
                     return default;
