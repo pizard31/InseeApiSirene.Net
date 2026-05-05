@@ -1,0 +1,44 @@
+name: Publication NuGet
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout dépôt
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configuration .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restauration des dépendances
+        run: dotnet restore
+
+      - name: Compilation
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Création du package (.nupkg) et des symboles (.snupkg)
+        run: dotnet pack --configuration Release --no-build --output nupkgs
+
+      - name: Identification NuGet
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+    
+      - name: Publication du package sur NuGet
+        run: dotnet nuget push nupkgs/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Publication des symboles sur Nuget
+        run: dotnet nuget push nupkgs/*.snupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
